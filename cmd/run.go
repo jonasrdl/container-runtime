@@ -5,19 +5,32 @@ import (
 	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
+	"strings"
 	"syscall"
 )
 
 var runCmd = &cobra.Command{
 	Use:   "run [image] [command]",
 	Short: "run a command in a new container",
-	Args:  cobra.ExactArgs(2),
+	Args:  cobra.RangeArgs(1, 2),
 	Run:   run,
 }
 
 func run(cmd *cobra.Command, args []string) {
 	image := args[0]
-	command := args[1:]
+	fmt.Println("image:", image)
+	var command []string
+
+	if len(args) == 2 {
+		command = args[1:]
+	} else {
+		defaultCmd, err := getDefaultCommand(image)
+		if err != nil {
+			fmt.Println("Error getting default command:", err)
+			os.Exit(1)
+		}
+		command = defaultCmd
+	}
 
 	fmt.Println("Running", command)
 
@@ -39,6 +52,18 @@ func run(cmd *cobra.Command, args []string) {
 		fmt.Println("ERROR waiting for child process:", err)
 		os.Exit(1)
 	}
+}
+
+func getDefaultCommand(image string) ([]string, error) {
+	defaultCmdFile := fmt.Sprintf("assets/%s-cmd", image)
+	content, err := os.ReadFile(defaultCmdFile)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read default command file: %w", err)
+	}
+
+	defaultCmd := strings.TrimSpace(string(content))
+
+	return strings.Fields(defaultCmd), nil
 }
 
 func init() {
