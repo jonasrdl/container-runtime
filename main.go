@@ -1,10 +1,13 @@
 package main
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"os"
 	"os/exec"
+	"strconv"
 	"syscall"
+	"time"
 )
 
 func main() {
@@ -59,20 +62,21 @@ func child() {
 	image := os.Args[2]
 	command := os.Args[3:]
 
-	fmt.Println(command)
+	containerID := generateContainerID()
 
 	// Create a temporary directory to extract the image contents
-	tempDir := "./tempfs"
+	tempDir := fmt.Sprintf("./%s-tempfs", containerID)
+
 	must(os.MkdirAll(tempDir, 0770))
 
 	must(exec.Command("tar", "xvf", "assets/"+image+".tar.gz", "-C", tempDir).Run())
 
-	newRootFolder := "/var/lib/container-runtime/test"
+	newRootFolder := fmt.Sprintf("/var/lib/container-runtime/%s", containerID)
 
-	// move the temp folder to the root filesystem /var/lib/container-runtime/test/
+	// move the temp folder to the root filesystem /var/lib/container-runtime/<containerID>
 	must(os.Rename(tempDir, newRootFolder))
 
-	must(syscall.Sethostname([]byte("my-test-container")))
+	must(syscall.Sethostname([]byte(containerID)))
 	must(syscall.Chroot(newRootFolder))
 	must(os.Chdir("/"))
 	must(syscall.Mount("proc", "proc", "proc", 0, ""))
@@ -97,4 +101,9 @@ func must(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+// generateContainerID generates a unique ID for the container
+func generateContainerID() string {
+	return fmt.Sprintf("%x", sha256.Sum256([]byte(strconv.FormatInt(time.Now().Unix(), 10))))
 }
