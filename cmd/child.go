@@ -18,7 +18,7 @@ var childCmd = &cobra.Command{
 	Run:   child,
 }
 
-func child(cmd *cobra.Command, args []string) {
+func child(_ *cobra.Command, args []string) {
 	image := args[0]
 	command := args[1]
 
@@ -42,9 +42,12 @@ func child(cmd *cobra.Command, args []string) {
 	must(syscall.Mount("proc", "proc", "proc", 0, ""))
 
 	// create a /dev/null file in the container
-	os.Create("/dev/null")
+	_, err := os.Create("/dev/null")
+	if err != nil {
+		fmt.Println("ERROR creating /dev/null:", err)
+		os.Exit(1)
+	}
 
-	// Run an interactive shell within the container for debugging
 	fmt.Printf("Running command: %v\n", command)
 	execCmd := exec.Command(command)
 	execCmd.Stdin = os.Stdin

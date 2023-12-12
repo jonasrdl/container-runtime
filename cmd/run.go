@@ -16,9 +16,8 @@ var runCmd = &cobra.Command{
 	Run:   run,
 }
 
-func run(cmd *cobra.Command, args []string) {
+func run(_ *cobra.Command, args []string) {
 	image := args[0]
-	fmt.Println("image:", image)
 	var command []string
 
 	if len(args) == 2 {
