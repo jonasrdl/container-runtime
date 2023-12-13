@@ -21,3 +21,13 @@ You can list all containers using
 ```
 sudo ./container-runtime list
 ```
+
+You can delete a container using
+```
+sudo ./container-runtime delete <container-id>
+```
+
+You can also delete all containers using
+```
+sudo ./container-runtime delete --all
+```
