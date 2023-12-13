@@ -35,7 +35,7 @@ func list(_ *cobra.Command, _ []string) {
 
 	// print out containers
 	for _, container := range containers {
-		fmt.Println(container + "\n")
+		fmt.Println(container)
 	}
 }
 
