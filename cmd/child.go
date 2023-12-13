@@ -60,11 +60,6 @@ func child(_ *cobra.Command, args []string) error {
 		return fmt.Errorf("error mounting proc: %v", err)
 	}
 
-	// create a /dev/null file in the container
-	if _, err := os.Create("/dev/null"); err != nil {
-		return fmt.Errorf("error creating /dev/null: %v", err)
-	}
-
 	fmt.Printf("Running command: %v\n", command)
 	execCmd := exec.Command(command)
 	execCmd.Stdin = os.Stdin
