@@ -14,10 +14,10 @@ var runCmd = &cobra.Command{
 	Use:   "run <image> [command]",
 	Short: "run a command in a new container",
 	Args:  cobra.RangeArgs(1, 2),
-	Run:   run,
+	RunE:  run,
 }
 
-func run(_ *cobra.Command, args []string) {
+func run(_ *cobra.Command, args []string) error {
 	image := args[0]
 	var command []string
 
@@ -26,8 +26,7 @@ func run(_ *cobra.Command, args []string) {
 	} else {
 		defaultCmd, err := getDefaultCommand(image)
 		if err != nil {
-			fmt.Println("Error getting default command:", err)
-			os.Exit(1)
+			return fmt.Errorf("error getting default command: %v", err)
 		}
 		command = defaultCmd
 	}
@@ -44,14 +43,10 @@ func run(_ *cobra.Command, args []string) {
 	execCmd.Stderr = os.Stderr
 
 	// Start the command and wait for it to finish
-	if err := execCmd.Start(); err != nil {
-		fmt.Println("Error starting child process:", err)
-		os.Exit(1)
+	if err := execCmd.Run(); err != nil {
+		return fmt.Errorf("error starting child process: %v", err)
 	}
-	if err := execCmd.Wait(); err != nil {
-		fmt.Println("Error waiting for child process:", err)
-		os.Exit(1)
-	}
+	return nil
 }
 
 func getDefaultCommand(image string) ([]string, error) {

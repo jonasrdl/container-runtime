@@ -15,29 +15,26 @@ var deleteCmd = &cobra.Command{
 	Use:   "delete <containerID>",
 	Short: "delete a container",
 	Args:  cobra.RangeArgs(0, 1),
-	Run:   deleteContainer,
+	RunE:  deleteContainer,
 }
 
-func deleteContainer(_ *cobra.Command, args []string) {
+func deleteContainer(_ *cobra.Command, args []string) error {
 	if all {
 		fmt.Print("Are you sure you want to delete all containers? (y/n): ")
 		reader := bufio.NewReader(os.Stdin)
 		input, err := reader.ReadString('\n')
 		if err != nil {
-			fmt.Println("Error reading input:", err)
-			os.Exit(1)
+			return fmt.Errorf("error reading input: %v", err)
 		}
-		if strings.TrimSpace(input) != "y" {
-			fmt.Println("Operation cancelled")
-			os.Exit(0)
+		if strings.ToLower(strings.TrimSpace(input)) != "y" {
+			return fmt.Errorf("operation cancelled")
 		}
 
 		fmt.Println("Deleting all containers...")
 
 		containerDir, err := os.ReadDir(rootPath)
 		if err != nil {
-			fmt.Println("Error reading root path:", err)
-			os.Exit(1)
+			return fmt.Errorf("error reading root path: %v", err)
 		}
 		for _, container := range containerDir {
 			if container.IsDir() {
@@ -45,8 +42,7 @@ func deleteContainer(_ *cobra.Command, args []string) {
 				containerPath := fmt.Sprintf("%s/%s", rootPath, containerID)
 
 				if err := os.RemoveAll(containerPath); err != nil {
-					fmt.Println("Error deleting container:", err)
-					os.Exit(1)
+					return fmt.Errorf("error deleting container: %v", err)
 				}
 				fmt.Println("Deleted container: ", containerID)
 			}
@@ -54,18 +50,17 @@ func deleteContainer(_ *cobra.Command, args []string) {
 		fmt.Println("All containers deleted")
 	} else {
 		if len(args) != 1 {
-			fmt.Println("Error: container ID not provided")
-			os.Exit(1)
+			return fmt.Errorf("error: container ID not provided")
 		}
 
 		containerID := args[0]
 		containerPath := fmt.Sprintf("%s/%s", rootPath, containerID)
 
 		if err := os.RemoveAll(containerPath); err != nil {
-			fmt.Println("Error deleting container:", err)
-			os.Exit(1)
+			return fmt.Errorf("error deleting container: %v", err)
 		}
 	}
+	return nil
 }
 
 func init() {
