@@ -13,7 +13,7 @@ import (
 var runCmd = &cobra.Command{
 	Use:   "run <image> [command]",
 	Short: "run a command in a new container",
-	Args:  cobra.RangeArgs(1, 2),
+	Args:  cobra.MinimumNArgs(1),
 	RunE:  run,
 }
 
