@@ -3,14 +3,13 @@ package cmd
 import (
 	"bufio"
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
 	"strings"
+
+	"github.com/spf13/cobra"
 )
 
-var (
-	all bool
-)
+var all bool
 
 var deleteCmd = &cobra.Command{
 	Use:   "delete <containerID>",

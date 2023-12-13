@@ -3,12 +3,13 @@ package cmd
 import (
 	"crypto/sha256"
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
 	"strconv"
 	"syscall"
 	"time"
+
+	"github.com/spf13/cobra"
 )
 
 var childCmd = &cobra.Command{
@@ -27,7 +28,7 @@ func child(_ *cobra.Command, args []string) {
 	// Create a temporary directory to extract the image contents
 	tempDir := fmt.Sprintf("./%s-tempfs", containerID)
 
-	must(os.MkdirAll(tempDir, 0770))
+	must(os.MkdirAll(tempDir, 0o770))
 
 	must(exec.Command("tar", "xvf", "assets/"+image+".tar.gz", "-C", tempDir).Run())
 
