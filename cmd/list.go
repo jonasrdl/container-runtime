@@ -17,7 +17,7 @@ var rootPath = "/var/lib/container-runtime"
 func list(_ *cobra.Command, _ []string) {
 	containerDir, err := os.ReadDir(rootPath)
 	if err != nil {
-		fmt.Println("ERROR reading root path:", err)
+		fmt.Println("Error reading root path:", err)
 		os.Exit(1)
 	}
 	var containers []string
@@ -28,7 +28,7 @@ func list(_ *cobra.Command, _ []string) {
 	}
 
 	if len(containers) == 0 {
-		fmt.Println("No containers running")
+		fmt.Println("No containers are running")
 		os.Exit(0)
 	}
 

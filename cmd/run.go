@@ -10,7 +10,7 @@ import (
 )
 
 var runCmd = &cobra.Command{
-	Use:   "run [image] [command]",
+	Use:   "run <image> [command]",
 	Short: "run a command in a new container",
 	Args:  cobra.RangeArgs(1, 2),
 	Run:   run,
@@ -44,11 +44,11 @@ func run(_ *cobra.Command, args []string) {
 
 	// Start the command and wait for it to finish
 	if err := execCmd.Start(); err != nil {
-		fmt.Println("ERROR starting child process:", err)
+		fmt.Println("Error starting child process:", err)
 		os.Exit(1)
 	}
 	if err := execCmd.Wait(); err != nil {
-		fmt.Println("ERROR waiting for child process:", err)
+		fmt.Println("Error waiting for child process:", err)
 		os.Exit(1)
 	}
 }

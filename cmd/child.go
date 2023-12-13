@@ -44,7 +44,7 @@ func child(_ *cobra.Command, args []string) {
 	// create a /dev/null file in the container
 	_, err := os.Create("/dev/null")
 	if err != nil {
-		fmt.Println("ERROR creating /dev/null:", err)
+		fmt.Println("Error creating /dev/null:", err)
 		os.Exit(1)
 	}
 

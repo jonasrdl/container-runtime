@@ -13,7 +13,7 @@ var (
 )
 
 var deleteCmd = &cobra.Command{
-	Use:   "delete",
+	Use:   "delete <containerID>",
 	Short: "delete a container",
 	Args:  cobra.RangeArgs(0, 1),
 	Run:   deleteContainer,

@@ -8,13 +8,13 @@ import (
 )
 
 var execCmd = &cobra.Command{
-	Use:   "exec [containerID] [command]",
+	Use:   "exec <containerID> <command>",
 	Short: "exec a command in a running container",
 	Args:  cobra.ExactArgs(2),
 	Run:   execCommand,
 }
 
-func execCommand(cmd *cobra.Command, args []string) {
+func execCommand(_ *cobra.Command, args []string) {
 	containerID := args[0]
 	command := args[1:]
 
@@ -27,7 +27,7 @@ func execCommand(cmd *cobra.Command, args []string) {
 	execCmd.Stderr = os.Stderr
 
 	if err := execCmd.Run(); err != nil {
-		fmt.Println("ERROR", err)
+		fmt.Println("Error:", err)
 		os.Exit(1)
 	}
 }
