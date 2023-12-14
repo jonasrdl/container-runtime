@@ -33,6 +33,9 @@ func child(_ *cobra.Command, args []string) error {
 	// Create a temporary directory to extract the image contents
 	tempDir := fmt.Sprintf("/var/lib/container-runtime/%s-tempfs", containerID)
 
+	// Defer the cleanup function to remove the temp directory on exit
+	defer cleanupTempDir(tempDir)
+
 	if err := os.MkdirAll(tempDir, 0o770); err != nil {
 		return fmt.Errorf("error creating temp directory: %v", err)
 	}
@@ -79,6 +82,13 @@ func child(_ *cobra.Command, args []string) error {
 // generateContainerID generates a unique ID for the container
 func generateContainerID() string {
 	return fmt.Sprintf("%x", sha256.Sum256([]byte(strconv.FormatInt(time.Now().Unix(), 10))))
+}
+
+// cleanupTempDir removes the temporary directory
+func cleanupTempDir(tempDir string) {
+	if err := os.RemoveAll(tempDir); err != nil {
+		fmt.Printf("Error cleaning up temp directory %s: %v\n", tempDir, err)
+	}
 }
 
 func init() {
