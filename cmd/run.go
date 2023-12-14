@@ -35,8 +35,10 @@ func run(_ *cobra.Command, args []string) error {
 
 	execCmd := exec.Command("/proc/self/exe", append([]string{"child", image}, command...)...)
 	execCmd.SysProcAttr = &syscall.SysProcAttr{
-		Cloneflags:   syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS,
+		Cloneflags:   syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS | syscall.CLONE_NEWUSER,
 		Unshareflags: syscall.CLONE_NEWNS,
+		UidMappings:  []syscall.SysProcIDMap{{HostID: os.Getuid(), Size: 1}},
+		GidMappings:  []syscall.SysProcIDMap{{HostID: os.Getgid(), Size: 1}},
 	}
 	execCmd.Stdin = os.Stdin
 	execCmd.Stdout = os.Stdout
