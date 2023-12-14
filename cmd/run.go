@@ -21,7 +21,7 @@ func run(_ *cobra.Command, args []string) error {
 	image := args[0]
 	var command []string
 
-	if len(args) == 2 {
+	if len(args) >= 2 {
 		command = args[1:]
 	} else {
 		defaultCmd, err := getDefaultCommand(image)

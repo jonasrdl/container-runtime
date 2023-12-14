@@ -22,7 +22,11 @@ var childCmd = &cobra.Command{
 
 func child(_ *cobra.Command, args []string) error {
 	image := args[0]
-	command := args[1]
+	var command []string
+
+	if len(args) >= 2 {
+		command = args[1:]
+	}
 
 	containerID := generateContainerID()
 
@@ -61,7 +65,7 @@ func child(_ *cobra.Command, args []string) error {
 	}
 
 	fmt.Printf("Running command: %v\n", command)
-	execCmd := exec.Command(command)
+	execCmd := exec.Command(command[0], command[1:]...)
 	execCmd.Stdin = os.Stdin
 	execCmd.Stdout = os.Stdout
 	execCmd.Stderr = os.Stderr
