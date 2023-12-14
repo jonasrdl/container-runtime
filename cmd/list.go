@@ -28,7 +28,8 @@ func list(_ *cobra.Command, _ []string) error {
 	}
 
 	if len(containers) == 0 {
-		return fmt.Errorf("no containers are running")
+		fmt.Println("No containers are running")
+		return nil
 	}
 
 	// print out containers
