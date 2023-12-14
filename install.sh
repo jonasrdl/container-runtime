@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 groupadd container-runtime
 
 mkdir -p /var/lib/container-runtime
