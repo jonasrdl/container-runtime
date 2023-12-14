@@ -31,13 +31,13 @@ func child(_ *cobra.Command, args []string) error {
 	containerID := generateContainerID()
 
 	// Create a temporary directory to extract the image contents
-	tempDir := fmt.Sprintf("./%s-tempfs", containerID)
+	tempDir := fmt.Sprintf("/var/lib/container-runtime/%s-tempfs", containerID)
 
 	if err := os.MkdirAll(tempDir, 0o770); err != nil {
 		return fmt.Errorf("error creating temp directory: %v", err)
 	}
 
-	if err := exec.Command("tar", "xvf", "assets/"+image+".tar.gz", "-C", tempDir).Run(); err != nil {
+	if err := exec.Command("tar", "xvf", "assets/"+image+".tar.gz", "-C", tempDir, "--no-same-owner").Run(); err != nil {
 		return fmt.Errorf("error extracting image: %v", err)
 	}
 
