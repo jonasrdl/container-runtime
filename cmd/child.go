@@ -81,14 +81,10 @@ func child(_ *cobra.Command, args []string) error {
 	}
 
 	fmt.Printf("Running command: %v\n", cmdArgs)
-	execCmd := exec.Command(cmdArgs[0], cmdArgs[1:]...)
-	execCmd.Stdin = os.Stdin
-	execCmd.Stdout = os.Stdout
-	execCmd.Stderr = os.Stderr
-
-	if err := execCmd.Run(); err != nil {
+	if err := syscall.Exec(cmdArgs[0], cmdArgs, os.Environ()); err != nil {
 		return fmt.Errorf("error: %v", err)
 	}
+
 	return nil
 }
 
