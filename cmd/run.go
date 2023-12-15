@@ -19,19 +19,7 @@ var runCmd = &cobra.Command{
 
 func run(_ *cobra.Command, args []string) error {
 	image := args[0]
-	var command []string
-
-	if len(args) >= 2 {
-		command = args[1:]
-	} else {
-		defaultCmd, err := getDefaultCommand(image)
-		if err != nil {
-			return fmt.Errorf("error getting default command: %v", err)
-		}
-		command = defaultCmd
-	}
-
-	fmt.Println("Running", command)
+	command := args[1:]
 
 	execCmd := exec.Command("/proc/self/exe", append([]string{"child", image}, command...)...)
 	execCmd.SysProcAttr = &syscall.SysProcAttr{

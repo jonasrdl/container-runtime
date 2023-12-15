@@ -15,17 +15,30 @@ import (
 var childCmd = &cobra.Command{
 	Use:    "child",
 	Short:  "child is the child process that runs the container",
-	Args:   cobra.MinimumNArgs(2),
+	Args:   cobra.MinimumNArgs(1),
 	Hidden: true,
 	RunE:   child,
 }
 
+var defaultCommandFlag string
+
 func child(_ *cobra.Command, args []string) error {
 	image := args[0]
-	var command []string
 
-	if len(args) >= 2 {
-		command = args[1:]
+	// If a command is provided explicitly, use it; otherwise, check for the default command
+	var cmdArgs []string
+	if len(args) > 1 {
+		cmdArgs = args[1:]
+	} else if defaultCommandFlag != "" {
+		// If defaultCommandFlag is provided, use it as the command
+		cmdArgs = []string{defaultCommandFlag}
+	} else {
+		// If no explicit command and no default command, use the default command from the image
+		defaultCommand, err := getDefaultCommand(image)
+		if err != nil {
+			return fmt.Errorf("error getting default command: %v", err)
+		}
+		cmdArgs = defaultCommand
 	}
 
 	containerID := generateContainerID()
@@ -67,8 +80,8 @@ func child(_ *cobra.Command, args []string) error {
 		return fmt.Errorf("error mounting proc: %v", err)
 	}
 
-	fmt.Printf("Running command: %v\n", command)
-	execCmd := exec.Command(command[0], command[1:]...)
+	fmt.Printf("Running command: %v\n", cmdArgs)
+	execCmd := exec.Command(cmdArgs[0], cmdArgs[1:]...)
 	execCmd.Stdin = os.Stdin
 	execCmd.Stdout = os.Stdout
 	execCmd.Stderr = os.Stderr
@@ -92,5 +105,6 @@ func cleanupTempDir(tempDir string) {
 }
 
 func init() {
+	childCmd.Flags().StringVar(&defaultCommandFlag, "default-command", "", "default command to run in the container")
 	rootCmd.AddCommand(childCmd)
 }
