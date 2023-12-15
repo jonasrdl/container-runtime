@@ -34,7 +34,7 @@ func run(_ *cobra.Command, args []string) error {
 
 	// Start the command and wait for it to finish
 	if err := execCmd.Run(); err != nil {
-		return fmt.Errorf("error starting child process: %v", err)
+		return fmt.Errorf("error starting child process: %w", err)
 	}
 	return nil
 }

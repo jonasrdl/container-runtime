@@ -24,7 +24,7 @@ func deleteContainer(_ *cobra.Command, args []string) error {
 		reader := bufio.NewReader(os.Stdin)
 		input, err := reader.ReadString('\n')
 		if err != nil {
-			return fmt.Errorf("error reading input: %v", err)
+			return fmt.Errorf("error reading input: %w", err)
 		}
 		if strings.ToLower(strings.TrimSpace(input)) != "y" {
 			return fmt.Errorf("operation cancelled")
@@ -34,7 +34,7 @@ func deleteContainer(_ *cobra.Command, args []string) error {
 
 		containerDir, err := os.ReadDir(rootPath)
 		if err != nil {
-			return fmt.Errorf("error reading root path: %v", err)
+			return fmt.Errorf("error reading root path: %w", err)
 		}
 		for _, container := range containerDir {
 			if container.IsDir() {
@@ -42,7 +42,7 @@ func deleteContainer(_ *cobra.Command, args []string) error {
 				containerPath := fmt.Sprintf("%s/%s", rootPath, containerID)
 
 				if err := os.RemoveAll(containerPath); err != nil {
-					return fmt.Errorf("error deleting container: %v", err)
+					return fmt.Errorf("error deleting container: %w", err)
 				}
 				fmt.Println("Deleted container: ", containerID)
 			}
@@ -57,7 +57,7 @@ func deleteContainer(_ *cobra.Command, args []string) error {
 		containerPath := fmt.Sprintf("%s/%s", rootPath, containerID)
 
 		if err := os.RemoveAll(containerPath); err != nil {
-			return fmt.Errorf("error deleting container: %v", err)
+			return fmt.Errorf("error deleting container: %w", err)
 		}
 	}
 	return nil

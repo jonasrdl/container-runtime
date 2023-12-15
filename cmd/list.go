@@ -19,7 +19,7 @@ var rootPath = "/var/lib/container-runtime"
 func list(_ *cobra.Command, _ []string) error {
 	containerDir, err := os.ReadDir(rootPath)
 	if err != nil {
-		return fmt.Errorf("error reading root path: %v", err)
+		return fmt.Errorf("error reading root path: %w", err)
 	}
 
 	var validContainers []string
