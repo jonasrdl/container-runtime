@@ -36,7 +36,7 @@ func child(_ *cobra.Command, args []string) error {
 		// If no explicit command and no default command, use the default command from the image
 		defaultCommand, err := getDefaultCommand(image)
 		if err != nil {
-			return fmt.Errorf("error getting default command: %v", err)
+			return fmt.Errorf("error getting default command: %w", err)
 		}
 		cmdArgs = defaultCommand
 	}
@@ -50,45 +50,41 @@ func child(_ *cobra.Command, args []string) error {
 	defer cleanupTempDir(tempDir)
 
 	if err := os.MkdirAll(tempDir, 0o770); err != nil {
-		return fmt.Errorf("error creating temp directory: %v", err)
+		return fmt.Errorf("error creating temp directory: %w", err)
 	}
 
 	if err := exec.Command("tar", "xvf", "assets/"+image+".tar.gz", "-C", tempDir, "--no-same-owner").Run(); err != nil {
-		return fmt.Errorf("error extracting image: %v", err)
+		return fmt.Errorf("error extracting image: %w", err)
 	}
 
 	newRootFolder := fmt.Sprintf("/var/lib/container-runtime/%s", containerID)
 
 	// move the temp folder to the root filesystem /var/lib/container-runtime/<containerID>
 	if err := os.Rename(tempDir, newRootFolder); err != nil {
-		return fmt.Errorf("error moving temp directory: %v", err)
+		return fmt.Errorf("error moving temp directory: %w", err)
 	}
 
 	if err := syscall.Sethostname([]byte(containerID)); err != nil {
-		return fmt.Errorf("error setting hostname: %v", err)
+		return fmt.Errorf("error setting hostname: %w", err)
 	}
 
 	if err := syscall.Chroot(newRootFolder); err != nil {
-		return fmt.Errorf("error changing root filesystem: %v", err)
+		return fmt.Errorf("error changing root filesystem: %w", err)
 	}
 
 	if err := os.Chdir("/"); err != nil {
-		return fmt.Errorf("error changing directory: %v", err)
+		return fmt.Errorf("error changing directory: %w", err)
 	}
 
 	if err := syscall.Mount("proc", "proc", "proc", 0, ""); err != nil {
-		return fmt.Errorf("error mounting proc: %v", err)
+		return fmt.Errorf("error mounting proc: %w", err)
 	}
 
 	fmt.Printf("Running command: %v\n", cmdArgs)
-	execCmd := exec.Command(cmdArgs[0], cmdArgs[1:]...)
-	execCmd.Stdin = os.Stdin
-	execCmd.Stdout = os.Stdout
-	execCmd.Stderr = os.Stderr
-
-	if err := execCmd.Run(); err != nil {
-		return fmt.Errorf("error: %v", err)
+	if err := syscall.Exec(cmdArgs[0], cmdArgs, os.Environ()); err != nil {
+		return fmt.Errorf("command %s with args %s failed with error: %w", cmdArgs[0], cmdArgs, err)
 	}
+
 	return nil
 }
 
@@ -98,10 +94,11 @@ func generateContainerID() string {
 }
 
 // cleanupTempDir removes the temporary directory
-func cleanupTempDir(tempDir string) {
+func cleanupTempDir(tempDir string) error {
 	if err := os.RemoveAll(tempDir); err != nil {
-		fmt.Printf("Error cleaning up temp directory %s: %v\n", tempDir, err)
+		return fmt.Errorf("Error cleaning up temp directory %s: %w\n", tempDir, err)
 	}
+	return nil
 }
 
 func init() {
